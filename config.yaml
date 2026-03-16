@@ -1,0 +1,75 @@
+database_path: ./data/housing.db
+poll_interval_seconds: 300
+timezone: Europe/Amsterdam
+
+logging:
+  level: INFO
+
+notifications:
+  desktop:
+    enabled: false
+  telegram:
+    enabled: true
+    bot_token_env: TELEGRAM_BOT_TOKEN
+    chat_id_env: TELEGRAM_CHAT_ID
+  telegram_targets:
+    - enabled: true
+      bot_token_env: TELEGRAM_BOT_TOKEN_2
+      chat_id_env: TELEGRAM_CHAT_ID_2
+
+filters:
+  cities:
+    - Amsterdam
+  max_rent_eur: 2300
+  min_sqm: 50
+  furnishing: any
+  include_keywords: []
+  exclude_keywords: []
+  rental_types: []
+  bedrooms_min: 0
+
+scoring:
+  high_priority_threshold: 85.0
+  keyword_bonus: 8.0
+
+sources:
+  - id: pararius-amsterdam
+    adapter: pararius
+    enabled: true
+    search_url: https://www.pararius.com/apartments/amsterdam
+    max_listings: 100
+
+  - id: funda-amsterdam
+    adapter: funda
+    enabled: true
+    search_url: https://www.funda.nl/zoeken/huur?selected_area=[%22amsterdam%22]&price=%220-2500%22&object_type=[%22apartment%22,%22house%22]&availability=[%22available%22]&floor_area=%2260-%22&rental_agreement=[%22indefinite_duration%22]&sort=%22date_down%22
+    max_listings: 100
+    headless: false        
+    wait_until: networkidle
+    extra_wait_ms: 5000
+    stealth: false
+
+  - id: huurwoningen-amsterdam
+    adapter: huurwoningen
+    enabled: true
+    search_url: https://www.huurwoningen.nl/in/amsterdam/
+    max_listings: 100
+
+  - id: vanderlinden-rentals
+    adapter: vanderlinden
+    enabled: true
+    search_url: https://www.vanderlinden.nl/woning-huren/
+    max_listings: 100
+
+  - id: directwonen-amsterdam
+    adapter: directwonen
+    enabled: true
+    search_url: https://www.directwonen.nl/huurwoningen-huren/amsterdam
+    max_listings: 100
+
+  - id: vbt-amsterdam
+    adapter: vbt
+    enabled: true
+    search_url: https://vbtverhuurmakelaars.nl/woningen
+    city: Amsterdam
+    max_listings: 100

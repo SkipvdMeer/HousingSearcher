@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "local-housing-searcher"
+version = "0.1.0"
+description = "Local-first rental monitoring tool for Dutch housing sites"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Codex" }]
+dependencies = [
+  "beautifulsoup4>=4.12.3",
+  "httpx>=0.28.1",
+  "playwright>=1.52.0",
+  "pydantic>=2.11.2",
+  "PyYAML>=6.0.2",
+  "rapidfuzz>=3.12.2",
+  "typer>=0.16.0",
+]
+
+[project.optional-dependencies]
+dashboard = [
+  "fastapi>=0.115.12",
+  "uvicorn>=0.34.0",
+]
+dev = [
+  "pytest>=8.3.5",
+  "pytest-cov>=6.0.0",
+]
+
+[project.scripts]
+housing-monitor = "local_housing_searcher.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/local_housing_searcher"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"

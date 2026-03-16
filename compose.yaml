@@ -1,0 +1,20 @@
+services:
+  housing-monitor:
+    container_name: local-housing-searcher
+    build:
+      context: .
+    image: local-housing-searcher:latest
+    restart: unless-stopped
+    environment:
+      HOUSING_MONITOR_CONFIG: /app/config.yaml
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      TELEGRAM_BOT_TOKEN_2: ${TELEGRAM_BOT_TOKEN_2:-}
+      TELEGRAM_CHAT_ID_2: ${TELEGRAM_CHAT_ID_2:-}
+      TZ: ${TZ:-Europe/Amsterdam}
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data
+      - ./exports:/app/exports
+      - ./artifacts:/app/artifacts
+    command: ["run"]
