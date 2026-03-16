@@ -62,6 +62,8 @@ docker run --rm -it \
 
 Desktop notifications are generally not useful from inside Docker, so Telegram is the better notification channel there.
 
+The container includes `xvfb`, so adapters configured with `headless: false` can still run on a VPS without a physical display.
+
 If you use Telegram notifications, export the environment variables first:
 
 ```bash

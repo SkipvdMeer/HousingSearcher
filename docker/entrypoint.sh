@@ -33,9 +33,9 @@ case "$1" in
       echo "Mount ./config.yaml to /app/config.yaml or set HOUSING_MONITOR_CONFIG." >&2
       exit 1
     fi
-    exec housing-monitor "$@"
+    exec xvfb-run -a housing-monitor "$@"
     ;;
   *)
-    exec housing-monitor "$@"
+    exec xvfb-run -a housing-monitor "$@"
     ;;
 esac
