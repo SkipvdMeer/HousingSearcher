@@ -8,7 +8,7 @@ from local_housing_searcher.models import (
     RentalType,
     StoredListing,
 )
-from local_housing_searcher.notifications import NotificationManager, build_payload
+from local_housing_searcher.notifications import NotificationManager, NotificationPayload, build_payload
 
 
 def make_match() -> tuple[StoredListing, MatchResult]:
@@ -77,6 +77,26 @@ def test_notification_manager_sends_to_multiple_telegram_targets(monkeypatch) ->
         ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", sent[0][2]),
         ("TELEGRAM_BOT_TOKEN_2", "TELEGRAM_CHAT_ID_2", sent[1][2]),
     ]
+
+
+def test_notification_manager_does_not_raise_when_telegram_fails(monkeypatch) -> None:
+    config = NotificationConfig(
+        desktop={"enabled": False},
+        telegram=TelegramNotificationConfig(
+            enabled=True,
+            bot_token_env="TELEGRAM_BOT_TOKEN",
+            chat_id_env="TELEGRAM_CHAT_ID",
+        ),
+    )
+    manager = NotificationManager(config)
+    stored, match = make_match()
+
+    def fake_send(_config_obj: TelegramNotificationConfig, _payload: NotificationPayload) -> None:
+        raise RuntimeError("telegram rejected message")
+
+    monkeypatch.setattr("local_housing_searcher.notifications.send_telegram_notification", fake_send)
+
+    manager.notify(stored, match, dry_run=False)
 
 
 def test_build_payload_uses_requested_telegram_format() -> None:

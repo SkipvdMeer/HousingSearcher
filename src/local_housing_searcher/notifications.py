@@ -46,7 +46,10 @@ class NotificationManager:
         if self.config.desktop.enabled:
             send_desktop_notification(payload)
         for target in self.config.enabled_telegram_targets():
-            send_telegram_notification(target, payload)
+            try:
+                send_telegram_notification(target, payload)
+            except Exception:
+                LOGGER.exception("telegram notification failed")
 
 
 def send_desktop_notification(payload: NotificationPayload) -> None:
@@ -74,8 +77,29 @@ def send_telegram_notification(
         return
     text = f"{payload.title}\n{payload.body}"
     with httpx.Client(timeout=10.0) as client:
-        response = client.post(
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            json={"chat_id": chat_id, "text": text, "disable_web_page_preview": False},
-        )
-        response.raise_for_status()
+        try:
+            response = client.post(
+                f"https://api.telegram.org/bot{token}/sendMessage",
+                json={"chat_id": chat_id, "text": text, "disable_web_page_preview": False},
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            description = _telegram_error_description(exc.response)
+            LOGGER.warning(
+                "telegram notification rejected | status=%s | description=%s",
+                exc.response.status_code,
+                description,
+            )
+            return
+        except httpx.RequestError as exc:
+            LOGGER.warning("telegram notification request failed | error=%s", exc)
+            return
+
+
+def _telegram_error_description(response: httpx.Response) -> str:
+    try:
+        data = response.json()
+    except ValueError:
+        return response.text[:200]
+    description = data.get("description")
+    return str(description) if description else response.text[:200]

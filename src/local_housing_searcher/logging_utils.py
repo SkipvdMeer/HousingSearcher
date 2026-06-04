@@ -9,3 +9,4 @@ def configure_logging(level: str, debug: bool = False) -> None:
         level=effective_level,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
+    logging.getLogger("httpx").setLevel(logging.WARNING)
